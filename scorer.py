@@ -50,7 +50,7 @@ def _call_with_retry(
     for attempt in range(2):
         try:
             response = client.messages.create(
-                model="claude-sonnet-4-6",
+                model="claude-haiku-4-5-20251001",
                 max_tokens=2048,
                 system=system,
                 messages=[{"role": "user", "content": user_message}],

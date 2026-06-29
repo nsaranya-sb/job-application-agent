@@ -17,7 +17,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from config import CANDIDATE_PREFERENCES
 from cover_letter import generate_cover_letter
 from fetcher import fetch_job_detail, fetch_jobs
 from scorer import score_job
@@ -121,9 +120,19 @@ def save_output(filename: str, content: str) -> None:
 def main() -> None:
     reed_api_key = os.environ.get("REED_API_KEY")
     anthropic_api_key = os.environ.get("ANTHROPIC_API_KEY")
-    missing = [k for k, v in {"REED_API_KEY": reed_api_key, "ANTHROPIC_API_KEY": anthropic_api_key}.items() if not v]
+    required = {"REED_API_KEY": reed_api_key, "ANTHROPIC_API_KEY": anthropic_api_key,
+                "CANDIDATE_LOCATION": os.environ.get("CANDIDATE_LOCATION"),
+                "CANDIDATE_SALARY": os.environ.get("CANDIDATE_SALARY"),
+                "CANDIDATE_WORK_TYPE": os.environ.get("CANDIDATE_WORK_TYPE")}
+    missing = [k for k, v in required.items() if not v]
     if missing:
         sys.exit(f"Error: missing environment variable(s): {', '.join(missing)}")
+
+    CANDIDATE_PREFERENCES = {
+        "location": os.environ["CANDIDATE_LOCATION"],
+        "salary": os.environ["CANDIDATE_SALARY"],
+        "work_type": os.environ["CANDIDATE_WORK_TYPE"],
+    }
 
     root = Path(__file__).parent
     cv_text = load_text(root / "cv.md")
