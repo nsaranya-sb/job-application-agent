@@ -70,13 +70,20 @@ def _call_with_retry(
 
 
 def _parse_score(text: str) -> float:
-    match = re.search(r"\*\*Score:\s*(\d+(?:\.\d+)?)/10\*\*", text)
+    match = re.search(r"\*\*Skills Score:\s*(\d+(?:\.\d+)?)/10\*\*", text)
     if match:
         return float(match.group(1))
-    match = re.search(r"Score:\s*(\d+(?:\.\d+)?)/10", text)
+    match = re.search(r"Skills Score:\s*(\d+(?:\.\d+)?)/10", text)
     if match:
         return float(match.group(1))
     return 0.0
+
+
+def parse_recommendation(text: str) -> str:
+    match = re.search(r"\*\*Overall Recommendation:\s*([^\*\n]+)", text)
+    if match:
+        return match.group(1).strip().split("—")[0].strip()
+    return "Unknown"
 
 
 def _format_salary(job: dict) -> str:
