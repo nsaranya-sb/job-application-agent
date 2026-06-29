@@ -113,16 +113,19 @@ This is a required step for every role — not optional.
 
 ### Step 4 — Overall Verdict
 
-Provide:
-- **Score**: X/10 — be honest. Don't inflate to be encouraging.
-- **2–3 sentence plain English verdict** — what's the strongest case for applying,
-  and what's the realistic risk
-- **Recommendation**: One of:
-  - *Strong fit — prioritise this application*
-  - *Good fit — worth applying*
-  - *Partial fit — apply with targeted framing*
-  - *Weak fit — manage expectations*
-  - *Skip — structural gap is too significant*
+Provide two clearly separated scores:
+
+**Skills Score: X/10**
+Rate purely on skills, experience, and domain fit against the JD requirements.
+Ignore compensation, IR35 status, and location entirely in this score.
+
+**Overall Recommendation: [Apply / Apply with caveats / Skip]**
+Factor in compensation fit, IR35 status, location, and any structural blockers
+(clearance requirements, notice period conflicts, etc.).
+State the primary reason for the recommendation in one sentence.
+
+A Skip recommendation does not require a cover letter.
+Only generate a cover letter for Apply or Apply with caveats.
 
 ---
 
@@ -160,27 +163,27 @@ Provide:
 [1–2 sentences of context if needed — e.g. IR35 impact, PAYE take-home note]
 
 ### Overall Verdict
-**Score: X/10**
-[2–3 sentence verdict]
-**Recommendation: [one of the five options above]**
+**Skills Score: X/10**
+[2–3 sentence verdict on skills fit]
+**Overall Recommendation: [Apply / Apply with caveats / Skip]**
+[One sentence stating the primary reason — compensation, IR35, location, or structural blocker]
 ```
 
 If no structural issues exist, omit that section entirely — don't include it with "none".
 
-Always end your assessment with the score on its own line in exactly this format:
-**Score: 7.5/10**
+Always end your assessment with both scores in exactly this format:
+**Skills Score: 8.5/10**
+**Overall Recommendation: Apply with caveats** — [one sentence reason]
 
 ---
 
 ## After the Assessment
 
 Once the fit assessment is complete:
-If fit is 6/10 or above:
-- Write a cover letter 
-- Suggest CV tweaks to improve fit for this specific role
-- Compare against other roles already assessed in the conversation
+- If recommendation is **Apply** or **Apply with caveats**: offer to write a cover letter and suggest CV tweaks
+- If recommendation is **Skip**: do not offer a cover letter — be direct that the blocker is non-skills-related and move on
 
-If fit is below 6/10, be honest that a cover letter is unlikely to bridge the gap, and move on to the next role
+For multi-role comparison, use the Skills Score as the ranking metric.
 
 ---
 
