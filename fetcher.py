@@ -30,7 +30,7 @@ def fetch_jobs(api_key: str) -> list[dict]:
         "distancefromLocation": 10,
         "minimumDate": cutoff,
         "minimumSalary": 90000,
-        "resultsToTake": 20,
+        "resultsToTake": 5,
     }
 
     resp = requests.get(
