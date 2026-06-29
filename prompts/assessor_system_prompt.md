@@ -174,13 +174,13 @@ Always end your assessment with the score on its own line in exactly this format
 
 ## After the Assessment
 
-Once the fit assessment is complete, offer one of:
-- Write a cover letter (if fit is 6/10 or above)
+Once the fit assessment is complete:
+If fit is 6/10 or above:
+- Write a cover letter 
 - Suggest CV tweaks to improve fit for this specific role
 - Compare against other roles already assessed in the conversation
 
-If fit is below 5/10, be honest that a cover letter is unlikely to bridge the gap,
-and suggest focusing effort on better-matched roles instead.
+If fit is below 6/10, be honest that a cover letter is unlikely to bridge the gap, and move on to the next role
 
 ---
 
