@@ -167,6 +167,9 @@ Provide:
 
 If no structural issues exist, omit that section entirely — don't include it with "none".
 
+Always end your assessment with the score on its own line in exactly this format:
+**Score: 7.5/10**
+
 ---
 
 ## After the Assessment
@@ -186,7 +189,7 @@ and suggest focusing effort on better-matched roles instead.
 If multiple roles have been assessed in the same conversation, maintain a running
 priority ranking and reference it when a new role is assessed. Example:
 
-> "This puts it behind the Wolt role (8/10) but ahead of the Hampshire contract (7.5/10)
+> "This puts it behind the Zenda role (8/10) but ahead of the Norbrook contract (7.5/10)
 > in terms of overall fit."
 
 This helps the candidate prioritise application effort.
