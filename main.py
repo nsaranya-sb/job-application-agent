@@ -7,10 +7,12 @@ Usage:
 """
 
 import html as html_module
+import json
 import os
 import re
 import sys
 import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import anthropic
@@ -104,6 +106,29 @@ def build_markdown(job: dict, detail: dict, assessment_md: str, cover_letter: st
     return doc
 
 
+_STATE_FILE = Path(__file__).parent / ".pipeline_state.json"
+
+
+def load_state() -> tuple[datetime, set[int]]:
+    """Return (last_run datetime, seen_job_ids). Defaults to 24h ago with empty set."""
+    if _STATE_FILE.exists():
+        try:
+            data = json.loads(_STATE_FILE.read_text())
+            last_run = datetime.fromisoformat(data["last_run"])
+            seen = set(data.get("seen_job_ids", []))
+            return last_run, seen
+        except Exception:
+            pass
+    return datetime.now(timezone.utc) - timedelta(hours=24), set()
+
+
+def save_state(last_run: datetime, seen_job_ids: set[int]) -> None:
+    _STATE_FILE.write_text(
+        json.dumps({"last_run": last_run.isoformat(), "seen_job_ids": sorted(seen_job_ids)},
+                   indent=2)
+    )
+
+
 def print_summary(results: list[dict]) -> None:
     if not results:
         return
@@ -164,18 +189,31 @@ def main() -> None:
     client = anthropic.Anthropic(api_key=anthropic_api_key)
     Path("output").mkdir(exist_ok=True)
 
-    print("Fetching product manager jobs in London (last 24h)...\n")
-    jobs = fetch_jobs(reed_api_key)
+    last_run, seen_job_ids = load_state()
+    run_start = datetime.now(timezone.utc)
+    print(f"Fetching product manager jobs in London posted since {last_run.strftime('%Y-%m-%d %H:%M UTC')}...\n")
+    jobs = fetch_jobs(reed_api_key, since=last_run)
 
     if not jobs:
         print("No jobs found.")
+        save_state(run_start, seen_job_ids)
         return
 
     total    = len(jobs)
     relevant = [j for j in jobs if is_relevant_title(j.get("jobTitle", ""))]
-    print(f"Found {total} job(s). {total - len(relevant)} filtered by title, {len(relevant)} to process.\n")
-    jobs  = relevant
+    new_jobs = [j for j in relevant if j.get("jobId") not in seen_job_ids]
+    skipped_seen = len(relevant) - len(new_jobs)
+    print(
+        f"Found {total} job(s). {total - len(relevant)} filtered by title, "
+        f"{skipped_seen} already processed, {len(new_jobs)} new to process.\n"
+    )
+    jobs  = new_jobs
     total = len(jobs)
+
+    if total == 0:
+        print("No new jobs to process.")
+        save_state(run_start, seen_job_ids)
+        return
 
     results = []
     letters = 0
@@ -235,6 +273,7 @@ def main() -> None:
         )
         print(f"    Notion: {'✓ posted' if posted else '✗ failed'}\n")
 
+        seen_job_ids.add(job_id)
         results.append({
             "title":        title,
             "company":      employer,
@@ -242,6 +281,7 @@ def main() -> None:
             "recommendation": recommendation,
         })
 
+    save_state(run_start, seen_job_ids)
     print_summary(results)
     print(f"\n{len(results)}/{total} jobs scored, {letters} cover letter(s) generated.")
     print("Outputs written to output/")

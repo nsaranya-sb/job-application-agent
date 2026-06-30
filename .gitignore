@@ -4,3 +4,4 @@ cv.md
 output/
 __pycache__/
 *.pyc
+.pipeline_state.json

@@ -20,9 +20,11 @@ load_dotenv()
 REED_API_BASE = "https://www.reed.co.uk/api/1.0"
 
 
-def fetch_jobs(api_key: str) -> list[dict]:
-    """Return product manager jobs in London posted in the last 24 hours."""
-    cutoff = (datetime.utcnow() - timedelta(hours=24)).strftime("%Y-%m-%d")
+def fetch_jobs(api_key: str, since: datetime | None = None) -> list[dict]:
+    """Return product manager jobs in London posted since `since` (default: last 24h)."""
+    if since is None:
+        since = datetime.utcnow() - timedelta(hours=24)
+    cutoff = since.strftime("%Y-%m-%d")
 
     params = {
         "keywords": "product manager",
