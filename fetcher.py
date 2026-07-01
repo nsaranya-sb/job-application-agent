@@ -24,13 +24,11 @@ def fetch_jobs(api_key: str, since: datetime | None = None) -> list[dict]:
     """Return product manager jobs in London posted since `since` (default: last 24h)."""
     if since is None:
         since = datetime.utcnow() - timedelta(hours=24)
-    cutoff = since.strftime("%Y-%m-%d")
 
     params = {
         "keywords": "product manager",
         "locationName": "London",
         "distancefromLocation": 10,
-        "minimumDate": cutoff,
         "minimumSalary": 90000,
         "resultsToTake": 5,
     }
@@ -42,7 +40,21 @@ def fetch_jobs(api_key: str, since: datetime | None = None) -> list[dict]:
         timeout=15,
     )
     resp.raise_for_status()
-    return resp.json().get("results", [])
+    results = resp.json().get("results", [])
+
+    # Reed's search API silently ignores date filter params (minimumDate,
+    # fromDate, postedDate, datePosted all no-op), so filter locally using
+    # the "date" field it returns (format: dd/mm/yyyy).
+    since_date = since.date() if hasattr(since, "date") else since
+    filtered = []
+    for job in results:
+        posted_str = job.get("date")
+        if not posted_str:
+            continue
+        posted = datetime.strptime(posted_str, "%d/%m/%Y").date()
+        if posted >= since_date:
+            filtered.append(job)
+    return filtered
 
 
 def fetch_job_detail(api_key: str, job_id: int) -> dict:
