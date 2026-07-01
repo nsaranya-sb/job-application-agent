@@ -5,3 +5,4 @@ output/
 __pycache__/
 *.pyc
 .pipeline_state.json
+.DS_Store
