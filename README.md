@@ -6,7 +6,7 @@ An autonomous AI-powered pipeline that automatically searches for relevant job o
 
 ## 🌟 Key Features
 
-- **Automated Job Search**: Fetches recent Product Manager roles in London via the [Reed API](https://www.reed.co.uk/developers/jobseeker).
+- **Automated Job Search**: Fetches recent Product Manager roles in London via the [Reed API](https://www.reed.co.uk/developers/jobseeker), dynamically filtered by minimum salary expectations parsed from `.env`.
 - **Smart Pre-Filtering**: Filters out irrelevant role titles (e.g., product marketing, analyst, project manager) before API/LLM processing.
 - **Incremental Runs & Deduplication**: Tracks `.pipeline_state.json` to only fetch jobs posted since the last execution run and skips previously processed job IDs.
 - **AI Suitability Scoring**: Evaluates candidate fit using **Claude Haiku** against candidate CV (`cv.md`) and candidate preferences (location, salary, work type), outputting a **Skills Score (0–10)**, structured fit matrix, and recommendation.
@@ -25,7 +25,7 @@ job-application-agent/
 ├── scorer.py                   # LLM evaluation engine (Claude Haiku candidate-JD matcher)
 ├── cover_letter.py             # Cover letter generator (Claude Sonnet 3-paragraph writer)
 ├── notion.py                   # Notion API integration for tracker database syncing
-├── config.sample.py            # Sample candidate preferences schema
+├── config.sample.py            # Reference candidate preferences schema (historical reference)
 ├── cv.md                       # Your CV content (Markdown format)
 ├── cv.sample.md                # Template CV
 ├── prompts/
@@ -33,6 +33,8 @@ job-application-agent/
 ├── output/                     # Local archive for generated reports and cover letters
 └── .pipeline_state.json        # Pipeline run timestamp & processed job ID state file
 ```
+
+> **Note on `config.sample.py`**: `config.sample.py` serves as a reference schema showing how candidate preferences were originally structured in Python dictionaries. In the active pipeline, candidate preferences are loaded directly from `.env` environment variables.
 
 ---
 
@@ -63,7 +65,13 @@ pip install -r requirements.txt
 
 ### 3. Configuration (`.env`)
 
-Create a `.env` file in the root directory (refer to `.env.example` or sample settings below):
+Copy the template file `.env.example` to `.env` and fill in your API keys and candidate preferences:
+
+```bash
+cp .env.example .env
+```
+
+The `.env` configuration contains:
 
 ```env
 # API Keys
@@ -77,6 +85,8 @@ CANDIDATE_LOCATION="London (open to remote and hybrid)"
 CANDIDATE_SALARY="£100,000+ for permanent roles; £600+ per day outside IR35 for contract roles"
 CANDIDATE_WORK_TYPE="Open to permanent and contract roles"
 ```
+
+> **Salary Filtering**: The `CANDIDATE_SALARY` string is passed to the LLM for evaluation, and its numeric annual floor (e.g. `100000`) is dynamically parsed by `fetcher.py` to filter the Reed API search query (`minimumSalary`).
 
 ### 4. Candidate CV Setup
 
@@ -95,7 +105,7 @@ python main.py
 ### Workflow Execution Flow
 
 1. **State Restoration**: Reads `.pipeline_state.json` to find the last run timestamp and seen job IDs.
-2. **Fetch**: Queries Reed API for Product Manager roles in London.
+2. **Fetch**: Queries Reed API using the dynamic minimum salary parsed from `CANDIDATE_SALARY`.
 3. **Filter**: Skips seen job IDs and filters out irrelevant job titles.
 4. **Enrich & Score**: Retrieves full JD details and evaluates fit using Claude Haiku.
 5. **Cover Letter**: For jobs with a **Skills Score $\ge$ 7** and **Recommendation != Skip**, generates a customized cover letter using Claude Sonnet.
