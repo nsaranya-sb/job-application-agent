@@ -8,6 +8,7 @@ Reed API docs: https://www.reed.co.uk/developers/jobseeker
 """
 
 import os
+import re
 import sys
 from datetime import datetime, timedelta
 
@@ -20,18 +21,44 @@ load_dotenv()
 REED_API_BASE = "https://www.reed.co.uk/api/1.0"
 
 
-def fetch_jobs(api_key: str, since: datetime | None = None) -> list[dict]:
+def parse_minimum_salary(salary_text: str | None) -> int | None:
+    """Extract a numeric annual minimum salary floor from a text string or env var."""
+    if not salary_text:
+        return None
+    # Match annual salary figures like £100,000, 90,000, 100000
+    match = re.search(r"£?\s*(\d{2,3})[,.]?(\d{3})", salary_text)
+    if match:
+        return int(match.group(1) + match.group(2))
+    # Match patterns like 90k, 100k
+    match_k = re.search(r"£?\s*(\d{2,3})\s*k", salary_text, re.IGNORECASE)
+    if match_k:
+        return int(match_k.group(1)) * 1000
+    return None
+
+
+def fetch_jobs(
+    api_key: str,
+    since: datetime | None = None,
+    minimum_salary: int | None = None,
+    results_to_take: int | None = None,
+) -> list[dict]:
     """Return product manager jobs in London posted since `since` (default: last 24h)."""
     if since is None:
         since = datetime.utcnow() - timedelta(hours=24)
 
-    params = {
+    if minimum_salary is None:
+        raw_salary = os.environ.get("MINIMUM_SALARY") or os.environ.get("CANDIDATE_SALARY")
+        minimum_salary = parse_minimum_salary(raw_salary)
+
+    params: dict[str, int | str] = {
         "keywords": "product manager",
         "locationName": "London",
         "distancefromLocation": 10,
-        "minimumSalary": 90000,
-        "resultsToTake": 5,
     }
+    if minimum_salary is not None:
+        params["minimumSalary"] = minimum_salary
+    if results_to_take is not None:
+        params["resultsToTake"] = results_to_take
 
     resp = requests.get(
         f"{REED_API_BASE}/search",
