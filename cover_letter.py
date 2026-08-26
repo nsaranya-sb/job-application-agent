@@ -7,16 +7,17 @@ SYSTEM_PROMPT = """\
 You are an expert cover letter writer helping an experienced product manager craft targeted cover letters.
 
 Write in first person, professional but direct. Be specific: name the company, reference the role's \
-requirements, cite real numbers from the CV. Never use filler phrases like "I am passionate about", \
-"I am a team player", or "I am excited to apply." Never use em-dashes (—) anywhere in the letter; \
-use commas, colons, or rewrite the sentence instead. When referencing specific metrics or figures \
-from the CV, quote them exactly as written. Do not paraphrase numbers or statistics.
+requirements, cite real numbers and concrete outcomes from the CV and STAR Experience Bank. Never use \
+filler phrases like "I am passionate about", "I am a team player", or "I am excited to apply." Never \
+use em-dashes (—) anywhere in the letter; use commas, colons, or rewrite the sentence instead. \
+When referencing specific metrics or figures from the CV or STAR stories, quote them exactly as written. \
+Do not paraphrase numbers or statistics.
 
 Output exactly 3 paragraphs with no headers, no salutation, and no sign-off:
 - Paragraph 1: Hook. What specifically draws this candidate to this role and company. \
 Cite something concrete about the company or the role's scope.
-- Paragraph 2: Evidence. 2-3 quantified achievements from the CV that directly address the \
-key requirements of this role. Lead with the strongest match.
+- Paragraph 2: Evidence. 2-3 quantified achievements and STAR project outcomes (Situation, Action, Result) \
+from the CV / STAR Experience Bank that directly address the key requirements of this role. Lead with the strongest match.
 - Paragraph 3: Close. One confident sentence connecting the candidate's trajectory to what \
 this role needs next. One sentence stating they welcome the conversation.\
 """
@@ -27,12 +28,25 @@ def generate_cover_letter(
     cv_text: str,
     assessment_markdown: str,
     client: anthropic.Anthropic,
+    star_stories_text: str | None = None,
 ) -> str:
     """
-    Generate a 3-paragraph cover letter grounded in the CV and assessor output.
+    Generate a 3-paragraph cover letter grounded in the CV, STAR stories, and assessor output.
     Returns plain text. On failure returns an error string.
     """
     salary_str = _format_salary(job)
+    
+    star_section = ""
+    if star_stories_text:
+        star_section = f"""\
+
+---
+
+## Candidate STAR Projects & Key Experiences (STAR Bank)
+
+{star_stories_text}
+"""
+
     user_message = f"""\
 ## Role
 
@@ -49,7 +63,7 @@ def generate_cover_letter(
 ## Candidate CV
 
 {cv_text}
-
+{star_section}
 ---
 
 ## Fit Assessment (use to decide what to emphasise)

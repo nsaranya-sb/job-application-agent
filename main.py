@@ -24,6 +24,7 @@ from cover_letter import generate_cover_letter
 from fetcher import fetch_job_detail, fetch_jobs
 from notion import post_to_notion
 from scorer import parse_recommendation, score_job
+from star_loader import load_star_stories
 
 
 _REQUIRED_WORD = "product"
@@ -186,6 +187,30 @@ def main() -> None:
     cv_text        = load_text(root / "cv.md")
     assessor_prompt = load_text(root / "prompts" / "assessor_system_prompt.md")
 
+    # Look for STAR format project/experience spreadsheet or markdown file
+    star_file = None
+    candidate_names = [
+        "Story bank.csv",
+        "story bank.csv",
+        "story_bank.csv",
+        "story_bank.tsv",
+        "story_bank.json",
+        "story_bank.md",
+        "star_stories.csv",
+        "star_stories.tsv",
+        "star_stories.json",
+        "star_stories.md",
+    ]
+    for candidate_name in candidate_names:
+        candidate_path = root / candidate_name
+        if candidate_path.exists():
+            star_file = candidate_path
+            break
+
+    star_stories_text = load_star_stories(star_file) if star_file else None
+    if star_stories_text:
+        print(f"Loaded STAR experience bank from '{star_file.name}'")
+
     client = anthropic.Anthropic(api_key=anthropic_api_key)
     Path("output").mkdir(exist_ok=True)
 
@@ -245,7 +270,9 @@ def main() -> None:
         cover_letter = None
         if skills_score >= 7 and recommendation.lower() != "skip":
             print("    Generating cover letter...")
-            cover_letter = generate_cover_letter(enriched, cv_text, assessment_md, client)
+            cover_letter = generate_cover_letter(
+                enriched, cv_text, assessment_md, client, star_stories_text=star_stories_text
+            )
             letters += 1
 
         filename = f"{job_id}_{slugify(employer)}.md"

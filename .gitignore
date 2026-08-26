@@ -6,3 +6,12 @@ __pycache__/
 *.pyc
 .pipeline_state.json
 .DS_Store
+
+# Candidate STAR / Story Bank files
+Story bank.csv
+story bank.csv
+story_bank.csv
+star_stories.csv
+*.csv
+!star_stories.sample.csv
+

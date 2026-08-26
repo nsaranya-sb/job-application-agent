@@ -24,10 +24,12 @@ job-application-agent/
 ├── fetcher.py                  # Reed API client (job search & job detail fetcher)
 ├── scorer.py                   # LLM evaluation engine (Claude Haiku candidate-JD matcher)
 ├── cover_letter.py             # Cover letter generator (Claude Sonnet 3-paragraph writer)
+├── star_loader.py              # STAR format experience loader (CSV, TSV, JSON, MD parser)
 ├── notion.py                   # Notion API integration for tracker database syncing
 ├── config.sample.py            # Reference candidate preferences schema (historical reference)
 ├── cv.md                       # Your CV content (Markdown format)
 ├── cv.sample.md                # Template CV
+├── star_stories.sample.csv     # Sample template for STAR format experience bank
 ├── prompts/
 │   └── assessor_system_prompt.md # System prompt for candidate-JD fit assessment
 ├── output/                     # Local archive for generated reports and cover letters
@@ -91,6 +93,12 @@ CANDIDATE_WORK_TYPE="Open to permanent and contract roles"
 ### 4. Candidate CV Setup
 
 Ensure `cv.md` exists in the repository root containing your experience, skills, metrics, and achievements. You can use `cv.sample.md` as a guide.
+
+### 5. Candidate STAR Format Projects (Optional)
+
+Export your key projects and experience spreadsheet (from Excel, Google Sheets, etc.) as a `.csv` file named `star_stories.csv` in the root directory. You can use `star_stories.sample.csv` as a template with columns: `Project/Role`, `Situation`, `Task`, `Action`, `Result`, and `Skills`.
+
+When present, `main.py` automatically injects your STAR experience bank into Claude Sonnet to ground cover letter Paragraph 2 (Evidence) in specific STAR achievements and exact metrics.
 
 ---
 
