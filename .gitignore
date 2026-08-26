@@ -1,6 +1,8 @@
 .env
 cv.md
 .venv/
+.vscode/
+pyrightconfig.json
 output/
 __pycache__/
 *.pyc
